@@ -1,0 +1,25 @@
+version: 2.1
+
+orbs:
+  go: circleci/go@1.7.0
+
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/golang:1.17.2
+    steps:
+      - checkout
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run: go build
+      - go/test
+      - store_artifacts:
+          path: ./bin/go_build_main_go
+          destination: update-git-tags
+      # FIXME: Add step to push this to our s3 bucket
+workflows:
+  build:
+    jobs:
+      - build
