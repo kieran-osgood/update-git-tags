@@ -26,11 +26,13 @@ jobs:
           destination: update-git-tags
       # FIXME: Add step to push this to our s3 bucket
       
-# workflows:
-#   build:
-#     jobs:
-#       - build:
-#           filters:
-#             tags:
-#               ignore: /^v.*/
+workflows:
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: 
+                - main 
+                - circleci-project-setup
 
