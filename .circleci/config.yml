@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  go: circleci/go@1.7.0
+
 jobs:
   build:
     working_directory: ~/repo
@@ -7,27 +10,15 @@ jobs:
       - image: circleci/golang:1.17.2
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
-      - run:
-          name: Install Dependencies
-          command: go mod download
-      - save_cache:
-          key: go-mod-v4-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg/mod"
-      # - run:
-      #     name: Run tests
-      #     command: |
-      #       mkdir -p /tmp/test-reports
-      #       gotestsum --junitfile /tmp/test-reports/unit-tests.xml
-      # - store_test_results:
-      #     path: /tmp/test-reports
+      - go/load-cache
+      - go/mod-download
+      - go/save-cache
+      - run: go build
+      - go/test
       - persist_to_workspace:
           root: .
           paths: 
-            - .
+            - ./bin
           # FIXME: Add step to push this to our s3 bucket
 workflows:
   build:
