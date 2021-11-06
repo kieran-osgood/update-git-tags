@@ -15,11 +15,9 @@ jobs:
       - go/save-cache
       - run: go build
       - go/test
-      - persist_to_workspace:
-          root: .
-          paths: 
-            - ./bin
-          # FIXME: Add step to push this to our s3 bucket
+      - store_artifacts:
+          path: /bin
+      # FIXME: Add step to push this to our s3 bucket
 workflows:
   build:
     jobs:
