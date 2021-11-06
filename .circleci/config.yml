@@ -15,6 +15,12 @@ jobs:
       - go/save-cache
       - run: go build
       - go/test
+      - run: 
+          name: base_revision
+          command: echo << pipeline.git.base_revision >>
+      - run: 
+          name: revision
+          command: echo << pipeline.git.revision >>
       - store_artifacts:
           path: ./bin/go_build_main_go
           destination: update-git-tags
@@ -22,4 +28,8 @@ jobs:
 workflows:
   build:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              ignore: /^v.*/
+
