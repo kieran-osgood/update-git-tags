@@ -1,54 +1,42 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/mitchellh/mapstructure"
-	"os"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 )
 
-type AppJsonFile struct {
-	Expo struct {
-		Version string
-	}
-}
-
-func handleError(err error) {
-	if err != nil {
-		panic(err)
-	}
-	return
-}
-
 func main() {
-	file, err := os.ReadFile("app.json")
-	if err != nil {
-		fmt.Println("file error")
-		os.Exit(1)
-	}
+	err := ParseFlags()
+	HandleError(err)
 
-	m := make(map[string]interface{})
-	err = json.Unmarshal(file, &m)
-	handleError(err)
+	r, err := GetRepository()
+	HandleError(err)
 
-	var result AppJsonFile
-	err = mapstructure.Decode(m, &result)
-	handleError(err)
+	//ref, err := r.Head()
+	//HandleError(err)
+	
+	w, err := r.Worktree()
+	HandleError(err)
 
-	fmt.Printf("result: %v \n", result.Expo.Version)
+	v1, err := ReadAppJson(w)
+	HandleError(err)
+	Info(v1.Expo.Version)
 
-	/*
-	startup parameters:
-		- git repo url
-		- sha_1
-		- sha_2
+	err = w.Checkout(&git.CheckoutOptions{
+		Hash: plumbing.NewHash("6b3887536d1c17d49b305a83b8bc2693681cdc22"),
+	})
+	HandleError(err)
 
-	variables needed:
-		! need to parse json for this
-		current commits [app.json].expo.version nd last commit
+	v2, err := ReadAppJson(w)
+	HandleError(err)
+	Info(v2.Expo.Version)
 
-	// https://raw.githubusercontent.com/kieran-osgood/punchline/d32ad0be7dc4b187c751ce9378de2155dafa1a84/app.json?token=AEG6IAD5RGV4TNNSFMVRU5TBQVLES
+	//Info(result.Expo.Version)
+	//currentVersionCode := result.Expo.Version
+	//oldVersionCode := "1.2.3"
 
-	if last_sha != current_sha then update git commit
-	*/
+	//if currentVersionCode != oldVersionCode {
+	//	_, err := r.CreateTag(currentVersionCode, plumbing.NewHash(*Flags.Current_sha), &git.CreateTagOptions{})
+	//	HandleError(err)
+	//}
 }
