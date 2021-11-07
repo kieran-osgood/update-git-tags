@@ -10,15 +10,15 @@ import (
 
 //goland:noinspection GoSnakeCaseUsage
 type AllFlags struct {
-	Project_url  *string
-	Current_sha  *string
-	Previous_sha *string
+	Project_url *string
+	Branch      *string
+	Ssh_Key     *string
 }
 
 var Flags = AllFlags{
-	Project_url:  flag.String("project_url", os.Getenv("FOO"), "Git repository url"),
-	Current_sha:  flag.String("current_sha", os.Getenv("FOO"), "The current commit hash to check"),
-	Previous_sha: flag.String("previous_sha", os.Getenv("FOO"), "The previous commit hash to check"),
+	Project_url: flag.String("project_url", os.Getenv("REPOSITORY_URL"), "Git repository url"),
+	Branch:      flag.String("branch", "main", "The default branch to checkout and tag"),
+	Ssh_Key:     flag.String("ssh_key", os.Getenv("SSH_KEY"), "The ssh key file to use to clone"),
 }
 
 func ParseFlags() error {
@@ -30,9 +30,7 @@ func ParseFlags() error {
 		p := v.Field(i).Elem()
 		err := CheckFlag(typeOfS.Field(i).Name, &p)
 
-		if err != nil {
-			return err
-		}
+		HandleError(err)
 	}
 
 	return nil
