@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"bytes"
@@ -29,8 +29,6 @@ func GetRepository(publicKeys *ssh.PublicKeys) (*git.Repository, error) {
 	//// Encode as base64.
 	//encoded := b64.StdEncoding.EncodeToString(content)
 	//Info(encoded)
-
-
 
 	//err = os.RemoveAll("bin/repo")
 	//r, err := git.PlainClone("bin/repo", false, &git.CloneOptions{
@@ -115,7 +113,6 @@ func ReadAppJson(w *git.Worktree) (*AppJsonFile, error) {
 	return &result, nil
 }
 
-
 func tagExists(tag string, r *git.Repository) bool {
 	tagFoundErr := "tag was found"
 	Info("git show-ref --tag")
@@ -164,8 +161,6 @@ func CreateTag(r *git.Repository, tag string) (bool, error) {
 }
 
 func PushTags(r *git.Repository, publicKeys *ssh.PublicKeys) error {
-
-
 	po := &git.PushOptions{
 		RemoteName: "origin",
 		Progress:   os.Stdout,

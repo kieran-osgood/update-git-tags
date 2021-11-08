@@ -78,11 +78,6 @@ func test() {
 	if err != nil {
 		return
 	}
-// TODO: restructure project into /cmd and /internal and /pkg directories for visibility management
-	// TODO: test out the method for recursively accessing the fields via the dot notation keys
-	// TODO: ensure safe accessors for the fields and give appropriate error messages back when a specific one is not found
-	// TODO: add tests for the different inputs and ensure no panics
-
 
 	/**
 		result := ""
