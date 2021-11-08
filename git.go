@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
-	b64 "encoding/base64"
 	"encoding/json"
+	"fmt"
+	"github.com/go-git/go-git/v5/config"
 	"io"
+	"log"
 	"os"
 
 	"github.com/go-git/go-billy/v5/memfs"
@@ -15,12 +17,20 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-func GetRepository() (*git.Repository, error) {
-	key, _ := b64.StdEncoding.DecodeString(*Flags.Ssh_Key)
-	publicKeys, err := ssh.NewPublicKeys("git", key, "")
-	if err != nil {
-		return nil, err
-	}
+func GetRepository(publicKeys *ssh.PublicKeys) (*git.Repository, error) {
+	//home, _ := os.UserHomeDir()
+	//// Open file on disk.
+	//f, _ := os.Open(home + "/.ssh/update-git-tags_circle-ci")
+	//
+	//// Read entire JPG into byte slice.
+	//reader := bufio.NewReader(f)
+	//content, _ := ioutil.ReadAll(reader)
+	//
+	//// Encode as base64.
+	//encoded := b64.StdEncoding.EncodeToString(content)
+	//Info(encoded)
+
+
 
 	//err = os.RemoveAll("bin/repo")
 	//r, err := git.PlainClone("bin/repo", false, &git.CloneOptions{
@@ -67,20 +77,6 @@ func GetTags(r *git.Repository) ([]string, error) {
 	return tags, nil
 }
 
-func CreateTag(r *git.Repository, name string) error {
-	head, err := r.Head()
-	if err != nil {
-		return err
-	}
-
-	_, err = r.CreateTag(name, head.Hash(), &git.CreateTagOptions{})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 type AppJsonFile struct {
 	Expo struct {
 		Version string
@@ -117,4 +113,76 @@ func ReadAppJson(w *git.Worktree) (*AppJsonFile, error) {
 	HandleError(err)
 
 	return &result, nil
+}
+
+
+func tagExists(tag string, r *git.Repository) bool {
+	tagFoundErr := "tag was found"
+	Info("git show-ref --tag")
+	tags, err := r.TagObjects()
+	if err != nil {
+		log.Printf("get tags error: %s", err)
+		return false
+	}
+	res := false
+	err = tags.ForEach(func(t *object.Tag) error {
+		if t.Name == tag {
+			res = true
+			return fmt.Errorf(tagFoundErr)
+		}
+		return nil
+	})
+	if err != nil && err.Error() != tagFoundErr {
+		Info("iterate tags error: %s", err)
+		return false
+	}
+	return res
+}
+
+func CreateTag(r *git.Repository, tag string) (bool, error) {
+	if tagExists(tag, r) {
+		Warning("tag %s already exists", tag)
+		return false, nil
+	}
+	Warning("Set tag %s", tag)
+	h, err := r.Head()
+	if err != nil {
+		Warning("get HEAD error: %s", err)
+		return false, err
+	}
+	Info("git tag -a %s %s -m \"%s\"", tag, h.Hash(), tag)
+	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+		Message: tag,
+	})
+
+	if err != nil {
+		Warning("create tag error: %s", err)
+		return false, err
+	}
+
+	return true, nil
+}
+
+func PushTags(r *git.Repository, publicKeys *ssh.PublicKeys) error {
+
+
+	po := &git.PushOptions{
+		RemoteName: "origin",
+		Progress:   os.Stdout,
+		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
+		Auth:       publicKeys,
+	}
+	Info("git push --tags")
+	err := r.Push(po)
+
+	if err != nil {
+		if err == git.NoErrAlreadyUpToDate {
+			Info("origin remote was up to date, no push done")
+			return nil
+		}
+		Info("push to remote origin error: %s", err)
+		return err
+	}
+
+	return nil
 }
