@@ -31,12 +31,14 @@ jobs:
     steps:
       - attach_workspace: 
           at: .
+      - run: ls
       - run: VERSION=$(cat version.txt)
       - run: echo $VERSION
       - run: |
             go build \
             -ldflags "-X main.version=$(VERSION) -X 'main.build=$(CIRCLE_BUILD_NUM)'" \
-            -o ./bin/update_git_tag_cmd ./cmd
+            -o ./bin/update_git_tag_cmd \
+            ./cmd
       - store_artifacts:
           path: ./bin/update_git_tag_cmd
           destination: update-git-tags
@@ -52,6 +54,7 @@ jobs:
           command: |
             VERSION=$(./bin/update_git_tag_cmd --Version)
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
+
 workflows:
   build_test_release:
     jobs:
