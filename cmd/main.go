@@ -12,9 +12,23 @@ import (
 	"strings"
 )
 
+//goland:noinspection GoUnusedGlobalVariable
+var (
+	version string
+	build string
+)
+
 func main() {
 	flags, err := internal.GetFlags()
 	internal.HandleError(err)
+
+	if flags.Version {
+		if version == "" {
+			fmt.Printf("Version code hasn't been set\n")
+		}
+		fmt.Printf(version)
+		os.Exit(2)
+	}
 
 	key, _ := b64.StdEncoding.DecodeString(flags.SshKey)
 	publicKeys, err := ssh.NewPublicKeys("git", key, "")

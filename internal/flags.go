@@ -10,6 +10,8 @@ import (
 )
 
 type AllFlags struct {
+	Version bool
+
 	RepositoryUrl string
 	Branch        string
 	SshKey        string
@@ -44,37 +46,47 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
 	flags.StringVar(&allFlags.SshKey, "sshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
 	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
-	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "version", "Property path to the version code in the json file. Default: \"version\"")
-	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the version code. Default: \"package.json\"")
+	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "Version", "Property path to the Version code in the json file. Default: \"Version\"")
+	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the Version code. Default: \"package.json\"")
+
+	flags.BoolVar(&allFlags.Version, "Version", false, "Check Version of app binary")
 
 	err = flags.Parse(args)
 	if err != nil {
 		return nil, buf.String(), err
 	}
 
-	err = CheckFlag("RepositoryUrl", reflect.ValueOf(allFlags.RepositoryUrl))
-	if err != nil {
-		return nil, buf.String(), err
+	skipFlagChecks := false
+	if allFlags.Version || flag.ErrHelp != nil {
+		// User checking Version || help - so we expect other flags not to be set
+		skipFlagChecks = true
 	}
-	err = CheckFlag("Branch", reflect.ValueOf(allFlags.Branch))
-	if err != nil {
-		return nil, buf.String(), err
-	}
-	err = CheckFlag("sshKey", reflect.ValueOf(allFlags.SshKey))
-	if err != nil {
-		return nil, buf.String(), err
-	}
-	err = CheckFlag("PreviousHash", reflect.ValueOf(allFlags.PreviousHash))
-	if err != nil {
-		return nil, buf.String(), err
-	}
-	err = CheckFlag("PropertyPath", reflect.ValueOf(allFlags.PropertyPath))
-	if err != nil {
-		return nil, buf.String(), err
-	}
-	err = CheckFlag("FilePath", reflect.ValueOf(allFlags.PropertyPath))
-	if err != nil {
-		return nil, buf.String(), err
+
+	if !skipFlagChecks {
+		err = CheckFlag("RepositoryUrl", reflect.ValueOf(allFlags.RepositoryUrl))
+		if err != nil {
+			return nil, buf.String(), err
+		}
+		err = CheckFlag("Branch", reflect.ValueOf(allFlags.Branch))
+		if err != nil {
+			return nil, buf.String(), err
+		}
+		err = CheckFlag("sshKey", reflect.ValueOf(allFlags.SshKey))
+		if err != nil {
+			return nil, buf.String(), err
+		}
+		err = CheckFlag("PreviousHash", reflect.ValueOf(allFlags.PreviousHash))
+		if err != nil {
+			return nil, buf.String(), err
+		}
+		err = CheckFlag("PropertyPath", reflect.ValueOf(allFlags.PropertyPath))
+		if err != nil {
+			return nil, buf.String(), err
+		}
+		err = CheckFlag("FilePath", reflect.ValueOf(allFlags.PropertyPath))
+		if err != nil {
+			return nil, buf.String(), err
+		}
 	}
 
 	allFlags.args = flags.Args()

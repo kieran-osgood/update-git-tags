@@ -31,7 +31,7 @@ jobs:
             -ldflags "-X main.version=$VERSION -X 'main.build=$(date)'" \
             -o ./bin/update_git_tag_cmd ./cmd
       - store_artifacts:
-          path: ./bin/go_build_main_go
+          path: ./bin/update_git_tag_cmd
           destination: update-git-tags
 
   release:
@@ -43,7 +43,7 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            VERSION=$(my-binary --version)
+            VERSION=$(./bin/update_git_tag_cmd --Version)
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
 workflows:
   build:
