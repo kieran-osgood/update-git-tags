@@ -38,14 +38,14 @@ jobs:
             echo $VERSION 
             go build \
               -ldflags "-X main.version=${VERSION} -X 'main.build=${CIRCLE_BUILD_NUM}'" \
-              -o ./bin/update_git_tag_cmd \
+              -o ./bin/update-git-tags \
               ./cmd
       - persist_to_workspace:
           root: .
           paths:
             - .
       - store_artifacts:
-          path: ./bin/update_git_tag_cmd
+          path: ./bin/update-git-tags
           destination: update-git-tags
 
   release:
@@ -57,7 +57,7 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            VERSION=$(./bin/update_git_tag_cmd --Version)
+            VERSION=$(./bin/update-git-tags --Version)
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
 
 workflows:
