@@ -53,12 +53,22 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: ls
       - run:
           name: "Publish Release on GitHub"
           command: |
             VERSION=$(cat version.txt)
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
+            echo ${GITHUB_TOKEN}
+            echo ${CIRCLE_PROJECT_USERNAME}
+            echo ${CIRCLE_PROJECT_REPONAME}
+            echo ${CIRCLE_SHA1}
+            echo ${VERSION}
+            ghr \
+              -t "${GITHUB_TOKEN}" \
+              -u "${CIRCLE_PROJECT_USERNAME}" \
+              -r "${CIRCLE_PROJECT_REPONAME}" \
+              -c "${CIRCLE_SHA1}" \
+              -delete "${VERSION}" \
+              ./bin
 
 workflows:
   build_test_release:
