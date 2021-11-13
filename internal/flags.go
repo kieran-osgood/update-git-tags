@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
@@ -8,39 +9,60 @@ import (
 	"reflect"
 )
 
-//goland:noinspection GoSnakeCaseUsage
 type AllFlags struct {
-	Project_url   *string
-	Branch        *string
-	Ssh_Key       *string
-	Previous_hash *string
-	Property_path *string
+	repositoryUrl string
+	branch        string
+	sshKey        string
+	previousHash  string
+	propertyPath  string
+
+	// args are the positional (non-flag) command-line arguments.
+	args []string
 }
 
-var Flags = AllFlags{
-	Project_url: flag.String("project_url", os.Getenv("REPOSITORY_URL"), "Git repository url"),
-	Branch:      flag.String("branch", "main", "The default branch to checkout and tag"),
-	Ssh_Key:     flag.String("ssh_key", os.Getenv("SSH_KEY"), "The ssh key file to use to clone"),
-	Previous_hash:     flag.String("previous_hash", "", "The previous commit hash to compare file against"),
-	Property_path:     flag.String("property_path", "", "Dot notation form to access the version field in JSON"),
-}
+func ParseFlags(programName string, args []string) (config *AllFlags, output string, err error) {
+	flags := flag.NewFlagSet(programName, flag.ContinueOnError)
+	var buf bytes.Buffer
+	flags.SetOutput(&buf)
 
-func ParseFlags() error {
-	flag.Parse()
+	var allFlags AllFlags
+	flags.StringVar(&allFlags.repositoryUrl, "repositoryUrl", os.Getenv("REPOSITORY_URL"), "set repo project_url")
+	flags.StringVar(&allFlags.branch, "branch", "main", "set repo project_url")
+	flags.StringVar(&allFlags.sshKey, "sshKey", os.Getenv("SSH_KEY"), "set repo project_url")
+	flags.StringVar(&allFlags.previousHash, "previousHash", os.Getenv("CIRCLE_SHA1"), "set repo project_url")
+	flags.StringVar(&allFlags.propertyPath, "propertyPath", "version", "set repo project_url")
 
-	v := reflect.ValueOf(Flags)
-	typeOfS := v.Type()
-	for i := 0; i < v.NumField(); i++ {
-		p := v.Field(i).Elem()
-		err := CheckFlag(typeOfS.Field(i).Name, &p)
-
-		HandleError(err)
+	err = flags.Parse(args)
+	if err != nil {
+		return nil, buf.String(), err
 	}
 
-	return nil
+	err = CheckFlag("repositoryUrl", reflect.ValueOf(allFlags.repositoryUrl))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+	err = CheckFlag("branch", reflect.ValueOf(allFlags.branch))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+	err = CheckFlag("sshKey", reflect.ValueOf(allFlags.sshKey))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+	err = CheckFlag("previousHash", reflect.ValueOf(allFlags.previousHash))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+	err = CheckFlag("propertyPath", reflect.ValueOf(allFlags.propertyPath))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+
+	allFlags.args = flags.Args()
+	return &allFlags, buf.String(), nil
 }
 
-func CheckFlag(name string, value *reflect.Value) error {
+func CheckFlag(name string, value reflect.Value) error {
 	if value.IsZero() {
 		return errors.New(fmt.Sprintf("%v is a required field", name))
 	}
