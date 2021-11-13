@@ -13,14 +13,16 @@ type AllFlags struct {
 	Project_url   *string
 	Branch        *string
 	Ssh_Key       *string
-	Previous_Hash *string
+	Previous_hash *string
+	Property_path *string
 }
 
 var Flags = AllFlags{
 	Project_url: flag.String("project_url", os.Getenv("REPOSITORY_URL"), "Git repository url"),
 	Branch:      flag.String("branch", "main", "The default branch to checkout and tag"),
 	Ssh_Key:     flag.String("ssh_key", os.Getenv("SSH_KEY"), "The ssh key file to use to clone"),
-	Previous_Hash:     flag.String("previous_hash", "", "The previous commit hash to compare file against"),
+	Previous_hash:     flag.String("previous_hash", "", "The previous commit hash to compare file against"),
+	Property_path:     flag.String("property_path", "", "Dot notation form to access the version field in JSON"),
 }
 
 func ParseFlags() error {

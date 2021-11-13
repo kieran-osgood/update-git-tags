@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"go-git-tag/internal"
+	"strings"
 )
 
 func main() {
@@ -62,15 +64,6 @@ type ExpoContent struct {
 }
 
 func test() {
-	//k := "expo.version"
-	//ks := strings.Split(k, ".")
-	//pj := &PackageJson{
-	//	Expo: ExpoContent{
-	//		Version: "1.0.0",
-	//	},
-	//}
-	//Info(pj.Expo.Version)
-
 	//js := `{"version": "1.0.0"}`
 	js := `{"expo":{"version":"1.0.0"}}`
 	var result map[string]interface{}
@@ -78,13 +71,25 @@ func test() {
 	if err != nil {
 		return
 	}
+	nextLevelToCheck := result
 
-	/**
-		result := ""
-		i:=0; for i < len(ks); i++ {
-		result = result[ks[i]]
+	var s string
+	//kArr := strings.Split("version", ".")
+	kArr := strings.Split("expo.version", ".")
+	//kArr := strings.Split(*internal.Flags.Property_path, ".")
+	for i := 0; i < len(kArr); i++ {
+		k := kArr[i]
+		if v, ok := nextLevelToCheck[k].(string); ok {
+			s = v
+			break
+		}
+
+		replacement, ok := nextLevelToCheck[k].(map[string]interface{})
+		if !ok {
+			internal.Error("Error accessing property: %v. Check Property_path flag matches json path to version property.", k)
+			break
+		}
+		nextLevelToCheck = replacement
 	}
-	*/
-	z := result["expo"]
-	fmt.Println(z)
+	fmt.Printf("s: %v", s)
 }

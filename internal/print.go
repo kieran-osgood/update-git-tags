@@ -21,6 +21,6 @@ func Warning(format string, args ...interface{}) {
 }
 
 // Error should be used to display a warning
-func Error(format error) {
-	fmt.Printf(ErrorColor, fmt.Sprint(format.Error() + "\n"))
+func Error(format string, args ...interface{}) {
+	fmt.Printf(ErrorColor, fmt.Sprintf(format, args...) + "\n")
 }
