@@ -6,7 +6,7 @@ orbs:
 jobs:
   checkout_and_cache:
     docker:
-      - image: circleci/golang:1.17.2
+      - image: cimg/go:1.17.3
     steps:
       - checkout
       - go/load-cache
@@ -19,7 +19,7 @@ jobs:
 
   test:
     docker:
-      - image: circleci/golang:1.17.2
+      - image: cimg/go:1.17.3
     steps:
       - attach_workspace: 
           at: .
@@ -27,17 +27,16 @@ jobs:
 
   build:
     docker:
-      - image: circleci/golang:1.17.2
+      - image: cimg/go:1.17.3
     steps:
       - attach_workspace: 
           at: .
       - run:
           command: |
             VERSION=$(cat version.txt) 
-            echo $VERSION 
             go build \
-              -ldflags "-X main.version=${VERSION} -X 'main.build=${CIRCLE_BUILD_NUM}'" \
-              -o ./bin/update-git-tags \
+                -ldflags "-X main.version=${VERSION} -X 'main.build=${CIRCLE_BUILD_NUM}'" \
+                -o ./bin/update-git-tags \
               ./cmd
       - persist_to_workspace:
           root: .
@@ -57,13 +56,12 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             VERSION=$(cat version.txt)
-            echo ${GITHUB_TOKEN}
             ghr \
-              -t "${GITHUB_TOKEN}" \
-              -u "${CIRCLE_PROJECT_USERNAME}" \
-              -r "${CIRCLE_PROJECT_REPONAME}" \
-              -c "${CIRCLE_SHA1}" \
-              -delete \
+                -t "${GITHUB_TOKEN}" \
+                -u "${CIRCLE_PROJECT_USERNAME}" \
+                -r "${CIRCLE_PROJECT_REPONAME}" \
+                -c "${CIRCLE_SHA1}" \
+                -delete \
               "${VERSION}" \
               ./bin
 
@@ -81,11 +79,10 @@ workflows:
           requires:
             - test
       - release:
-          context: github
           requires:
               - build
-          # filters:
-            # branches:
-            #   ignore: /.*/
-            # tags:
-            #   only: /(?<=^[Vv]|^)(?:(?<major>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<minor>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<patch>(?:0|[1-9](?:(?:0|[1-9])+)*))(?:-(?<prerelease>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*)))*))?(?:[+](?<build>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+)))*))?)$/
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /(?<=^[Vv]|^)(?:(?<major>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<minor>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<patch>(?:0|[1-9](?:(?:0|[1-9])+)*))(?:-(?<prerelease>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*)))*))?(?:[+](?<build>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+)))*))?)$/
