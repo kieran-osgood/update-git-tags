@@ -22,7 +22,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.17.2
-      envrionment:
+    environment:
         VERSION: $(cat version.txt)
     steps:
       - run: echo $VERSION
@@ -48,10 +48,10 @@ jobs:
 workflows:
   build:
     jobs:
-      - checkout_and_cache
-        filters:
-          branches:
-            only: main
+      - checkout_and_cache:
+          filters:
+            branches:
+              only: main
       - test:
           requires:
             - checkout_and_cache
