@@ -2,7 +2,6 @@ package internal
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/go-git/go-git/v5/config"
 	"io"
@@ -14,10 +13,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/go-git/go-git/v5/storage/memory"
-	"github.com/mitchellh/mapstructure"
 )
 
-func GetRepository(publicKeys *ssh.PublicKeys) (*git.Repository, error) {
+func GetRepository(url string, publicKeys *ssh.PublicKeys) (*git.Repository, error) {
 	//home, _ := os.UserHomeDir()
 	//// Open file on disk.
 	//f, _ := os.Open(home + "/.ssh/update-git-tags_circle-ci")
@@ -37,7 +35,7 @@ func GetRepository(publicKeys *ssh.PublicKeys) (*git.Repository, error) {
 	//	Progress: os.Stdout,
 	//})
 	r, err := git.Clone(memory.NewStorage(), memfs.New(), &git.CloneOptions{
-		URL:      *Flags.Project_url,
+		URL:      url,
 		Auth:     publicKeys,
 		Progress: os.Stdout,
 	})
@@ -54,7 +52,7 @@ func GetTags(r *git.Repository) ([]string, error) {
 		return nil, err
 	}
 
-	// Retrieves all tags for current branch
+	// Retrieves all tags for current Branch
 	var tags []string
 	err = t.ForEach(func(t *object.Tag) error {
 		tags = append(tags, t.Name)
@@ -75,14 +73,8 @@ func GetTags(r *git.Repository) ([]string, error) {
 	return tags, nil
 }
 
-type AppJsonFile struct {
-	Expo struct {
-		Version string
-	}
-}
-
-func ReadAppJson(w *git.Worktree) (*AppJsonFile, error) {
-	f, err := w.Filesystem.Open("app.json")
+func ReadJson(w *git.Worktree, fileName string) (*[]byte, error) {
+	f, err := w.Filesystem.Open(fileName)
 	if err != nil {
 		return nil, err
 	}
@@ -100,17 +92,14 @@ func ReadAppJson(w *git.Worktree) (*AppJsonFile, error) {
 		}
 	}
 
-	m := make(map[string]interface{})
-	err = json.Unmarshal(bytes.Trim(b, "\x00"), &m)
-	if err != nil {
-		return nil, err
-	}
+	b = bytes.Trim(b, "\x00")
+	//m := make(map[string]interface{})
+	//err = json.Unmarshal(bytes.Trim(b, "\x00"), &m)
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	var result AppJsonFile
-	err = mapstructure.Decode(m, &result)
-	HandleError(err)
-
-	return &result, nil
+	return &b, nil
 }
 
 func tagExists(tag string, r *git.Repository) bool {
