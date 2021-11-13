@@ -5,5 +5,4 @@ func HandleError(err error) {
 		Error(err.Error())
 		panic(err)
 	}
-	return
 }
