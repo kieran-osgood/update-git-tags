@@ -4,8 +4,7 @@ orbs:
   go: circleci/go@1.7.0
 
 jobs:
-  build:
-    working_directory: ~/project
+  checkout_and_cache:
     docker:
       - image: circleci/golang:1.17.2
     steps:
@@ -13,17 +12,57 @@ jobs:
       - go/load-cache
       - go/mod-download
       - go/save-cache
-      - run: go build -o ./bin/update_git_tag_cmd ./cmd
+
+  test:
+    docker:
+      - image: circleci/golang:1.17.2
+    steps:
       - go/test
+
+  build:
+    docker:
+      - image: circleci/golang:1.17.2
+      envrionment:
+        VERSION: $(cat version.txt)
+    steps:
+      - run: echo $VERSION
+      - run: |
+            go build \
+            -ldflags "-X main.version=$VERSION -X 'main.build=$(date)'" \
+            -o ./bin/update_git_tag_cmd ./cmd
       - store_artifacts:
           path: ./bin/go_build_main_go
           destination: update-git-tags
-      # FIXME: Add step to push this to our s3 bucket
-      
+
+  release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=$(my-binary --version)
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
 workflows:
   build:
     jobs:
+      - checkout_and_cache
+        filters:
+          branches:
+            only: main
+      - test:
+          requires:
+            - checkout_and_cache
       - build:
+          requires:
+            - test
+      - release:
+          requires:
+              - build
           filters:
             branches:
-              only: main
+              ignore: /.*/
+            tags:
+              only: /(?<=^[Vv]|^)(?:(?<major>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<minor>(?:0|[1-9](?:(?:0|[1-9])+)*))[.](?<patch>(?:0|[1-9](?:(?:0|[1-9])+)*))(?:-(?<prerelease>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:0|[1-9](?:(?:0|[1-9])+)*)))*))?(?:[+](?<build>(?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+))(?:[.](?:(?:(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?|(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)(?:[A-Za-z]|-)(?:(?:(?:0|[1-9])|(?:[A-Za-z]|-))+)?)|(?:(?:0|[1-9])+)))*))?)$/
