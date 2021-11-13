@@ -28,15 +28,14 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.17.2
-    environment:
-        VERSION: $(cat version.txt)
     steps:
       - attach_workspace: 
           at: .
+      - run: VERSION=$(cat version.txt)
       - run: echo $VERSION
       - run: |
             go build \
-            -ldflags "-X main.version=$VERSION -X 'main.build=$(date)'" \
+            -ldflags "-X main.version=$(VERSION) -X 'main.build=$(CIRCLE_BUILD_NUM)'" \
             -o ./bin/update_git_tag_cmd ./cmd
       - store_artifacts:
           path: ./bin/go_build_main_go
