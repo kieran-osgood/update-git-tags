@@ -15,7 +15,7 @@ jobs:
       - go/save-cache
       - run: go build
       - go/test
-      - run: 
+      - run:
           name: base_revision
           command: echo << pipeline.git.base_revision >>
       - run: 
@@ -29,4 +29,7 @@ jobs:
 workflows:
   build:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: master
