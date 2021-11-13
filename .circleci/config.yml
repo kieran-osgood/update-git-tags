@@ -31,7 +31,6 @@ jobs:
     steps:
       - attach_workspace: 
           at: .
-      - run: ls
       - run:
           command: |
             VERSION=$(cat version.txt) 
@@ -54,6 +53,7 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - run: ls
       - run:
           name: "Publish Release on GitHub"
           command: |
