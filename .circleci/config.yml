@@ -58,16 +58,13 @@ jobs:
           command: |
             VERSION=$(cat version.txt)
             echo ${GITHUB_TOKEN}
-            echo ${CIRCLE_PROJECT_USERNAME}
-            echo ${CIRCLE_PROJECT_REPONAME}
-            echo ${CIRCLE_SHA1}
-            echo ${VERSION}
             ghr \
               -t "${GITHUB_TOKEN}" \
               -u "${CIRCLE_PROJECT_USERNAME}" \
               -r "${CIRCLE_PROJECT_REPONAME}" \
               -c "${CIRCLE_SHA1}" \
-              -delete "${VERSION}" \
+              -delete \
+              "${VERSION}" \
               ./bin
 
 workflows:
@@ -84,6 +81,7 @@ workflows:
           requires:
             - test
       - release:
+          context: github
           requires:
               - build
           # filters:
