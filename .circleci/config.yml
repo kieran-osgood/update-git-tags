@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   build:
-    working_directory: .
+    working_directory: ~/project
     docker:
       - image: circleci/golang:1.17.2
     steps:
@@ -13,14 +13,8 @@ jobs:
       - go/load-cache
       - go/mod-download
       - go/save-cache
-      - run: go build
+      - run: go build -o ./bin/update_git_tag_cmd ./cmd
       - go/test
-      - run:
-          name: base_revision
-          command: echo << pipeline.git.base_revision >>
-      - run: 
-          name: revision
-          command: echo << pipeline.git.revision >>
       - store_artifacts:
           path: ./bin/go_build_main_go
           destination: update-git-tags
