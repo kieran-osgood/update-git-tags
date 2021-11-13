@@ -30,9 +30,14 @@ then running
 would produce a new git tag `v1.1.1` on `origin/main`.
 
 ## Arguments
-| name           | description                                                                              | default value   |
-|----------------|------------------------------------------------------------------------------------------|-----------------|
-| --project_url  | SSH url to the repository to be cloned e.g. git@github.com/<user-name>/<repository-name> | $REPOSITORY_URL |
-| --branch       | Default branch to checkout                                                               | "master"        |
-| --ssh_key_path | Base64 encoded pem file                                                                   | "$SSH_KEY"      |
+<!-- https://www.tablesgenerator.com/markdown_tables -->
+| name              | description                                                                              | Required | default value   |
+|-------------------|------------------------------------------------------------------------------------------|----------|-----------------|
+| --project_url     | SSH url to the repository to be cloned e.g. git@github.com/<user-name>/<repository-name> | true     | $REPOSITORY_URL |
+| --branch          | Default branch to checkout                                                               | false    | "master"        |
+| --previous_commit | Commit hash to compare against <branch>@HEAD                                             | true     | ""              |
+| --ssh_key_path    | SSH git authentication method Note: Base64 encoded private keyfile                       | false    | ""              |
+| --username        | HTTPS git authentication method                                                          | false    | ""              |
+| --password        | HTTPS git authentication method                                                          | false    | ""              |
+|                   |                                                                                          |          |                 |
 ---
