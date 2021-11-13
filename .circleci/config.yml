@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   build:
-    working_directory: ~/repo
+    working_directory: .
     docker:
       - image: circleci/golang:1.17.2
     steps:
@@ -31,5 +31,5 @@ workflows:
     jobs:
       - build:
           filters:
-            tags:
-              only: master
+            branches:
+              only: main
