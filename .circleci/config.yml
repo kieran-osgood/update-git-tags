@@ -12,11 +12,17 @@ jobs:
       - go/load-cache
       - go/mod-download
       - go/save-cache
+      - persist_to_workspace:
+          root: .
+          paths: 
+            - .
 
   test:
     docker:
       - image: circleci/golang:1.17.2
     steps:
+      - attach_workspace: 
+          at: .
       - go/test
 
   build:
@@ -25,6 +31,8 @@ jobs:
     environment:
         VERSION: $(cat version.txt)
     steps:
+      - attach_workspace: 
+          at: .
       - run: echo $VERSION
       - run: |
             go build \
@@ -46,7 +54,7 @@ jobs:
             VERSION=$(my-binary --version)
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./bin
 workflows:
-  build:
+  build_test_release:
     jobs:
       - checkout_and_cache:
           filters:
