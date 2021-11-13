@@ -32,13 +32,14 @@ jobs:
       - attach_workspace: 
           at: .
       - run: ls
-      - run: VERSION=$(cat version.txt)
-      - run: echo $VERSION
-      - run: |
+      - run:
+          command: |
+            VERSION=$(cat version.txt) 
+            echo $VERSION 
             go build \
-            -ldflags "-X main.version=$(VERSION) -X 'main.build=$(CIRCLE_BUILD_NUM)'" \
-            -o ./bin/update_git_tag_cmd \
-            ./cmd
+              -ldflags "-X main.version=$(VERSION) -X 'main.build=$(CIRCLE_BUILD_NUM)'" \
+              -o ./bin/update_git_tag_cmd \
+              ./cmd
       - store_artifacts:
           path: ./bin/update_git_tag_cmd
           destination: update-git-tags
