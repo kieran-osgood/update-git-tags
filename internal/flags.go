@@ -57,7 +57,7 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	}
 
 	skipFlagChecks := false
-	if allFlags.Version || flag.ErrHelp != nil {
+	if allFlags.Version  {
 		// User checking Version || help - so we expect other flags not to be set
 		skipFlagChecks = true
 	}
