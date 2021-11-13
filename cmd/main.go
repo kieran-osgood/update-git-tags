@@ -29,28 +29,16 @@ func main() {
 	w, err := r.Worktree()
 	internal.HandleError(err)
 
-	j1, err := internal.ReadJson(w, "app.json")
+	v1, err := GetVersion(w, *flags)
 	internal.HandleError(err)
-	v1, err := ExtractVersionFromJson(j1, flags.PropertyPath)
-	internal.HandleError(err)
-	internal.Info("Branch: %v \nversion: %v\n", flags.Branch, v1)
-	if v1 == "" {
-		internal.Warning("Branch: %v \nversion: %v\n", flags.Branch, v1)
-	}
 
 	err = w.Checkout(&git.CheckoutOptions{
 		Hash: plumbing.NewHash(flags.PreviousHash),
 	})
 	internal.HandleError(err)
 
-	j2, err := internal.ReadJson(w, "app.json")
+	v2, err := GetVersion(w, *flags)
 	internal.HandleError(err)
-	v2, err := ExtractVersionFromJson(j2, flags.PropertyPath)
-	internal.HandleError(err)
-	if v2 == "" {
-		internal.Warning("Branch: %v \nversion: %v\n", flags.Branch, v2)
-	}
-	internal.Info("Commit: %v \nversion: %v\n", flags.PreviousHash, v2)
 
 	if v1 == v2 {
 		internal.Warning("Version code hasn't changed, exiting")
@@ -69,6 +57,26 @@ func main() {
 
 	err = internal.PushTags(r, publicKeys)
 	internal.HandleError(err)
+}
+
+func GetVersion(w *git.Worktree, flags internal.AllFlags) (string, error) {
+	j, err := internal.ReadJson(w, flags.FilePath)
+	if err != nil {
+		return "", err
+	}
+
+	v, err := ExtractVersionFromJson(j, flags.PropertyPath)
+	if err != nil {
+		return "", err
+	}
+
+	if v != "" {
+		internal.Info("Branch: %v \nversion: %v\n", flags.Branch, v)
+	} else {
+		internal.Warning("Version: %v\n was not found - check the path", v)
+	}
+
+	return v, nil
 }
 
 func ExtractVersionFromJson(jsonString *[]byte, accessor string) (string, error) {

@@ -12,14 +12,16 @@ import (
 type AllFlags struct {
 	RepositoryUrl string
 	Branch        string
-	SshKey       string
-	PreviousHash string
-	PropertyPath string
+	SshKey        string
+	PreviousHash  string
+	PropertyPath  string
+	FilePath      string
 
 	// args are the positional (non-flag) command-line arguments.
 	args []string
 }
-func GetFlags() (*AllFlags, error){
+
+func GetFlags() (*AllFlags, error) {
 	flags, output, err := ParseFlags(os.Args[0], os.Args[1:])
 	if err == flag.ErrHelp {
 		fmt.Println(output)
@@ -38,11 +40,12 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.SetOutput(&buf)
 
 	var allFlags AllFlags
-	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "set repo project_url")
-	flags.StringVar(&allFlags.Branch, "Branch", "main", "set repo project_url")
-	flags.StringVar(&allFlags.SshKey, "sshKey", os.Getenv("SSH_KEY"), "set repo project_url")
-	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "set repo project_url")
-	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "version", "set repo project_url")
+	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "Repository URL to check. Default: $REPOSITORY_URL")
+	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
+	flags.StringVar(&allFlags.SshKey, "sshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
+	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
+	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "version", "Property path to the version code in the json file. Default: \"version\"")
+	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the version code. Default: \"package.json\"")
 
 	err = flags.Parse(args)
 	if err != nil {
@@ -66,6 +69,10 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 		return nil, buf.String(), err
 	}
 	err = CheckFlag("PropertyPath", reflect.ValueOf(allFlags.PropertyPath))
+	if err != nil {
+		return nil, buf.String(), err
+	}
+	err = CheckFlag("FilePath", reflect.ValueOf(allFlags.PropertyPath))
 	if err != nil {
 		return nil, buf.String(), err
 	}

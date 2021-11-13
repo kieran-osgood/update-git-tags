@@ -73,8 +73,8 @@ func GetTags(r *git.Repository) ([]string, error) {
 	return tags, nil
 }
 
-func ReadJson(w *git.Worktree, fileName string) (*[]byte, error) {
-	f, err := w.Filesystem.Open(fileName)
+func ReadJson(w *git.Worktree, path string) (*[]byte, error) {
+	f, err := w.Filesystem.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +91,7 @@ func ReadJson(w *git.Worktree, fileName string) (*[]byte, error) {
 			panic(err)
 		}
 	}
-
 	b = bytes.Trim(b, "\x00")
-	//m := make(map[string]interface{})
-	//err = json.Unmarshal(bytes.Trim(b, "\x00"), &m)
-	//if err != nil {
-	//	return nil, err
-	//}
 
 	return &b, nil
 }
