@@ -37,9 +37,13 @@ jobs:
             VERSION=$(cat version.txt) 
             echo $VERSION 
             go build \
-              -ldflags "-X main.version=$(VERSION) -X 'main.build=$(CIRCLE_BUILD_NUM)'" \
+              -ldflags "-X main.version=${VERSION} -X 'main.build=${CIRCLE_BUILD_NUM}'" \
               -o ./bin/update_git_tag_cmd \
               ./cmd
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
       - store_artifacts:
           path: ./bin/update_git_tag_cmd
           destination: update-git-tags
