@@ -46,7 +46,7 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.SetOutput(&buf)
 
 	var allFlags AllFlags
-	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "Repository URL to check. Default: $REPOSITORY_URL")
+	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "SSH url to the repository to be cloned. Default: $REPOSITORY_URL")
 	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
 	flags.StringVar(&allFlags.SshKey, "SshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
 	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
