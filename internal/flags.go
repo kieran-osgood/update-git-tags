@@ -39,6 +39,7 @@ func GetFlags() (*AllFlags, error) {
 
 	return flags, nil
 }
+
 func ParseFlags(programName string, args []string) (config *AllFlags, output string, err error) {
 	flags := flag.NewFlagSet(programName, flag.ContinueOnError)
 	var buf bytes.Buffer
@@ -47,13 +48,15 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	var allFlags AllFlags
 	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "Repository URL to check. Default: $REPOSITORY_URL")
 	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
-	flags.StringVar(&allFlags.SshKey, "sshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
+	flags.StringVar(&allFlags.SshKey, "SshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
 	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
 	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "Version", "Property path to the Version code in the json file. Default: \"Version\"")
 	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the Version code. Default: \"package.json\"")
 
 	flags.StringVar(&allFlags.VersionPrefix, "VersionPrefix", "v", "Prefix for the git tag")
 	flags.StringVar(&allFlags.VersionSuffix, "VersionSuffix", "", "Suffix for the git tag")
+
+	// Flag short circuits' app run and outputs the binary version from main.Version
 	flags.BoolVar(&allFlags.Version, "Version", false, "Check Version of app binary")
 
 	err = flags.Parse(args)
@@ -62,33 +65,22 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	}
 
 	skipFlagChecks := false
-	if allFlags.Version  {
+	if allFlags.Version {
 		// User checking Version || help - so we expect other flags not to be set
 		skipFlagChecks = true
 	}
 
 	if !skipFlagChecks {
-		err = CheckFlag("RepositoryUrl", reflect.ValueOf(allFlags.RepositoryUrl))
-		if err != nil {
-			return nil, buf.String(), err
+		flagsToCheck := map[string]reflect.Value{
+			"RepositoryUrl": reflect.ValueOf(allFlags.RepositoryUrl),
+			"Branch": reflect.ValueOf(allFlags.Branch),
+			"SshKey": reflect.ValueOf(allFlags.SshKey),
+			"PreviousHash": reflect.ValueOf(allFlags.PreviousHash),
+			"PropertyPath": reflect.ValueOf(allFlags.PropertyPath),
+			"FilePath": reflect.ValueOf(allFlags.FilePath),
 		}
-		err = CheckFlag("Branch", reflect.ValueOf(allFlags.Branch))
-		if err != nil {
-			return nil, buf.String(), err
-		}
-		err = CheckFlag("sshKey", reflect.ValueOf(allFlags.SshKey))
-		if err != nil {
-			return nil, buf.String(), err
-		}
-		err = CheckFlag("PreviousHash", reflect.ValueOf(allFlags.PreviousHash))
-		if err != nil {
-			return nil, buf.String(), err
-		}
-		err = CheckFlag("PropertyPath", reflect.ValueOf(allFlags.PropertyPath))
-		if err != nil {
-			return nil, buf.String(), err
-		}
-		err = CheckFlag("FilePath", reflect.ValueOf(allFlags.PropertyPath))
+
+		err = CheckFlags(flagsToCheck)
 		if err != nil {
 			return nil, buf.String(), err
 		}
@@ -96,6 +88,16 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 
 	allFlags.args = flags.Args()
 	return &allFlags, buf.String(), nil
+}
+
+func CheckFlags(flags map[string]reflect.Value) error {
+	for k, v := range flags  {
+		err := CheckFlag(k, v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func CheckFlag(name string, value reflect.Value) error {
