@@ -66,7 +66,7 @@ func main() {
 	})
 	internal.HandleError(err)
 
-	_, err = internal.CreateTag(r, fmt.Sprintf("v%v", v1))
+	_, err = internal.CreateTag(r, fmt.Sprintf("%v%v%v", flags.VersionPrefix, v1, flags.VersionSuffix))
 	internal.HandleError(err)
 
 	err = internal.PushTags(r, publicKeys)

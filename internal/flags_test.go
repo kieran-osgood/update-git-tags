@@ -24,7 +24,7 @@ func TestParseFlags3(t *testing.T) {
 		wantError bool
 	}{
 		{"it errors when no flags passed in", []string{}, AllFlags{}, true},
-		{"it parses flags into AllFlags", []string{"--RepositoryUrl=test_url", "--Branch=test_main", "--PropertyPath=Version", "--sshKey=123", "--PreviousHash=abc", "--FilePath=app.json"},
+		{"it parses flags into AllFlags", []string{"--RepositoryUrl=test_url", "--Branch=test_main", "--PropertyPath=Version", "--SshKey=123", "--PreviousHash=abc", "--FilePath=app.json"},
 			AllFlags{
 				RepositoryUrl: "test_url",
 				Branch:        "test_main",
@@ -32,6 +32,8 @@ func TestParseFlags3(t *testing.T) {
 				PreviousHash:  "abc",
 				PropertyPath:  "Version",
 				FilePath:      "app.json",
+				VersionPrefix:  "v",
+				VersionSuffix:  "",
 				args:          []string{},
 			},
 			false},

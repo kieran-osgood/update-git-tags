@@ -19,6 +19,9 @@ type AllFlags struct {
 	PropertyPath  string
 	FilePath      string
 
+	VersionPrefix string
+	VersionSuffix string
+
 	// args are the positional (non-flag) command-line arguments.
 	args []string
 }
@@ -49,6 +52,8 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "Version", "Property path to the Version code in the json file. Default: \"Version\"")
 	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the Version code. Default: \"package.json\"")
 
+	flags.StringVar(&allFlags.VersionPrefix, "VersionPrefix", "v", "Prefix for the git tag")
+	flags.StringVar(&allFlags.VersionSuffix, "VersionSuffix", "", "Suffix for the git tag")
 	flags.BoolVar(&allFlags.Version, "Version", false, "Check Version of app binary")
 
 	err = flags.Parse(args)
