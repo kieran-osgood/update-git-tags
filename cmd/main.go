@@ -4,12 +4,13 @@ import (
 	b64 "encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"go-git-tag/internal"
 	"os"
 	"strings"
+
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
 //goland:noinspection GoUnusedGlobalVariable
@@ -66,7 +67,7 @@ func main() {
 	})
 	internal.HandleError(err)
 
-	_, err = internal.CreateTag(r, fmt.Sprintf("%v%v%v", flags.VersionPrefix, v1, flags.VersionSuffix))
+	_, err = internal.CreateTag(r, fmt.Sprintf("%v%v%v", flags.VersionTagPrefix, v1, flags.VersionTagSuffix))
 	internal.HandleError(err)
 
 	err = internal.PushTags(r, publicKeys)

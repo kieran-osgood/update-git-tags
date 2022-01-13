@@ -19,8 +19,8 @@ type AllFlags struct {
 	PropertyPath  string
 	FilePath      string
 
-	VersionPrefix string
-	VersionSuffix string
+	VersionTagPrefix string
+	VersionTagSuffix string
 
 	// args are the positional (non-flag) command-line arguments.
 	args []string
@@ -49,12 +49,12 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "SSH url to the repository to be cloned. Default: $REPOSITORY_URL")
 	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
 	flags.StringVar(&allFlags.SshKey, "SshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
-	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", os.Getenv("CIRCLE_SHA1"), "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
-	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "Version", "Property path to the Version code in the json file. Default: \"Version\"")
+	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", "", "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
+	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "version", "Property path to the Version code in the json file. Default: \"Version\"")
 	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the Version code. Default: \"package.json\"")
 
-	flags.StringVar(&allFlags.VersionPrefix, "VersionPrefix", "v", "Prefix for the git tag")
-	flags.StringVar(&allFlags.VersionSuffix, "VersionSuffix", "", "Suffix for the git tag")
+	flags.StringVar(&allFlags.VersionTagPrefix, "VersionPrefix", "v", "Prefix for the git tag")
+	flags.StringVar(&allFlags.VersionTagSuffix, "VersionSuffix", "", "Suffix for the git tag")
 
 	// Flag short circuits' app run and outputs the binary version from main.Version
 	flags.BoolVar(&allFlags.Version, "Version", false, "Check Version of app binary")

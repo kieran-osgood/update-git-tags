@@ -1,9 +1,10 @@
 package internal
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCheckFlag(t *testing.T) {
@@ -32,8 +33,8 @@ func TestParseFlags3(t *testing.T) {
 				PreviousHash:  "abc",
 				PropertyPath:  "Version",
 				FilePath:      "app.json",
-				VersionPrefix:  "v",
-				VersionSuffix:  "",
+				VersionTagPrefix:  "v",
+				VersionTagSuffix:  "",
 				args:          []string{},
 			},
 			false},
