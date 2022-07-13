@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+    <module name="go-git-tag" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="--RepositoryUrl=git@github.com:kieran-osgood/update-git-tags-dev-orb-test.git --Branch=main --PreviousHash=17c0a706b855eb315e64ba7cb7b8c487496d596a --PropertyPath=version --FilePath=package.json" />
+    <kind value="FILE" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/cmd/main.go" />
+    <output_directory value="$PROJECT_DIR$/dist" />
+    <method v="2" />
+  </configuration>
+</component>
