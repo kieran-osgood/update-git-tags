@@ -25,9 +25,9 @@ func main() {
 
 	if flags.Version {
 		if version == "" {
-			internal.Error("Version code hasn't been set\n")
+			internal.PrintError("Version code hasn't been set\n")
 		} else {
-			internal.Info(version)
+			internal.PrintInfo(version)
 		}
 		os.Exit(internal.Success)
 	}
@@ -54,24 +54,20 @@ func main() {
 	/**
 	 * Shall we stop doing this previous hash stuff and instead just create it if it doesn't already exist?
 	 */
-	err = w.Checkout(&git.CheckoutOptions{
-		Hash: plumbing.NewHash(flags.PreviousHash),
-	})
+	err = w.Checkout(&git.CheckoutOptions{Hash: plumbing.NewHash(flags.PreviousHash)})
 	internal.HandleError(err)
 
 	v2, err := GetVersion(w, *flags)
 	internal.HandleError(err)
 
 	if v1 == v2 {
-		internal.Warning("Version code hasn't changed, exiting")
+		internal.PrintWarning("Version code hasn't changed, exiting")
 		os.Exit(internal.Success)
 	} else {
-		internal.Info("Version code changed!")
+		internal.PrintInfo("Version code changed!")
 	}
 
-	err = w.Checkout(&git.CheckoutOptions{
-		Hash: ref.Hash(),
-	})
+	err = w.Checkout(&git.CheckoutOptions{Hash: ref.Hash()})
 	internal.HandleError(err)
 
 	_, err = internal.CreateTag(r, fmt.Sprintf("%v%v%v", flags.VersionTagPrefix, v1, flags.VersionTagSuffix))
@@ -83,7 +79,7 @@ func main() {
 
 func GetVersion(w *git.Worktree, flags internal.AllFlags) (string, error) {
 	if !strings.Contains(flags.FilePath, ".json") {
-		internal.Error("Currently only .json is supported. Check FilePath flag matches json path to version property.")
+		internal.PrintError("Currently only .json is supported. Check FilePath flag matches json path to version property.")
 		os.Exit(internal.InvalidFlagValue)
 	}
 	j, err := internal.ReadJson(w, flags.FilePath)
@@ -97,9 +93,9 @@ func GetVersion(w *git.Worktree, flags internal.AllFlags) (string, error) {
 	}
 
 	if v != "" {
-		internal.Info("Branch: %v \nversion: %v\n", flags.Branch, v)
+		internal.PrintInfo("Branch: %v \nversion: %v\n", flags.Branch, v)
 	} else {
-		internal.Warning("Version: %v\n was not found - check the path", v)
+		internal.PrintWarning("Version: %v\n was not found - check the path", v)
 	}
 
 	return v, nil
@@ -124,7 +120,7 @@ func ExtractVersionFromJson(jsonString *[]byte, accessor string) (string, error)
 
 		replacement, ok := nextLevelToCheck[k].(map[string]interface{})
 		if !ok {
-			internal.Error("Error accessing property: %v. Check Property_path flag matches json path to version property.", k)
+			internal.PrintError("PrintError accessing property: %v. Check Property_path flag matches json path to version property.", k)
 			break
 		}
 		nextLevelToCheck = replacement

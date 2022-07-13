@@ -10,17 +10,17 @@ const (
 	DebugColor   = "\033[0;36m%s\033[0m"
 )
 
-// Info should be used to describe the example commands that are about to run.
-func Info(format string, args ...interface{}) {
-	fmt.Printf(InfoColor, fmt.Sprintf(format, args...) + "\n")
+// PrintInfo should be used to describe the example commands that are about to run.
+func PrintInfo(format string, args ...interface{}) {
+	fmt.Printf(InfoColor, fmt.Sprintf(format, args...)+"\n")
 }
 
-// Warning should be used to display a warning
-func Warning(format string, args ...interface{}) {
-	fmt.Printf(WarningColor, fmt.Sprintf(format, args...) + "\n")
+// PrintWarning should be used to display a warning
+func PrintWarning(format string, args ...interface{}) {
+	fmt.Printf(WarningColor, fmt.Sprintf(format, args...)+"\n")
 }
 
-// Error should be used to display a warning
-func Error(format string, args ...interface{}) {
-	fmt.Printf(ErrorColor, fmt.Sprintf(format, args...) + "\n")
+// PrintError should be used to display a warning
+func PrintError(format string, args ...interface{}) {
+	fmt.Printf(ErrorColor, fmt.Sprintf(format, args...)+"\n")
 }

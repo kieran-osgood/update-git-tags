@@ -26,7 +26,7 @@ func GetRepository(url string, publicKeys *ssh.PublicKeys) (*git.Repository, err
 	//
 	//// Encode as base64.
 	//encoded := b64.StdEncoding.EncodeToString(content)
-	//Info(encoded)
+	//PrintInfo(encoded)
 
 	//err = os.RemoveAll("bin/repo")
 	//r, err := git.PlainClone("bin/repo", false, &git.CloneOptions{
@@ -46,7 +46,7 @@ func GetRepository(url string, publicKeys *ssh.PublicKeys) (*git.Repository, err
 	return r, nil
 }
 
-func GetTags(r *git.Repository) ([]string, error) {
+func GetTags(r *git.Repository) (Tags []string, Error error) {
 	t, err := r.TagObjects()
 	if err != nil {
 		return nil, err
@@ -65,8 +65,8 @@ func GetTags(r *git.Repository) ([]string, error) {
 	// Retrieves *all* tags
 	//tags, err := r.Tags()
 	//err = tags.ForEach(func(tag *plumbing.Reference) error {
-	//	Info("tag.Name: %v\n", tag.Name())
-	//	Info("tag.Type: %v \n\n", tag.Type())
+	//	PrintInfo("tag.Name: %v\n", tag.Name())
+	//	PrintInfo("tag.Type: %v \n\n", tag.Type())
 	//	return nil
 	//})
 
@@ -98,7 +98,7 @@ func ReadJson(w *git.Worktree, path string) (*[]byte, error) {
 
 func tagExists(tag string, r *git.Repository) bool {
 	tagFoundErr := "tag was found"
-	Info("git show-ref --tag")
+	PrintInfo("git show-ref --tag")
 	tags, err := r.TagObjects()
 	if err != nil {
 		log.Printf("get tags error: %s", err)
@@ -113,30 +113,34 @@ func tagExists(tag string, r *git.Repository) bool {
 		return nil
 	})
 	if err != nil && err.Error() != tagFoundErr {
-		Info("iterate tags error: %s", err)
+		PrintInfo("iterate tags error: %s", err)
 		return false
 	}
 	return res
 }
 
-func CreateTag(r *git.Repository, tag string) (bool, error) {
-	if tagExists(tag, r) {
-		Warning("tag %s already exists", tag)
+func CreateTag(r *git.Repository, tagName string) (Success bool, Error error) {
+	if tagExists(tagName, r) {
+		PrintWarning("tagName %s already exists", tagName)
 		return false, nil
 	}
-	Warning("Set tag %s", tag)
 	h, err := r.Head()
 	if err != nil {
-		Warning("get HEAD error: %s", err)
+		PrintWarning("get HEAD error: %s", err)
 		return false, err
 	}
-	Info("git tag -a %s %s -m \"%s\"", tag, h.Hash(), tag)
-	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
-		Message: tag,
-	})
+	PrintInfo("Set tagName %s", tagName)
+	PrintInfo("git tagName -a %s %s -m \"%s\"", tagName, h.Hash(), tagName)
+	_, err = r.CreateTag(
+		tagName,
+		h.Hash(),
+		&git.CreateTagOptions{
+			Message: tagName,
+		},
+	)
 
 	if err != nil {
-		Warning("create tag error: %s", err)
+		PrintError("CreateTag error: %s", err)
 		return false, err
 	}
 
@@ -150,15 +154,15 @@ func PushTags(r *git.Repository, publicKeys *ssh.PublicKeys) error {
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 		Auth:       publicKeys,
 	}
-	Info("git push --tags")
+	PrintInfo("git push --tags")
 	err := r.Push(po)
 
 	if err != nil {
 		if err == git.NoErrAlreadyUpToDate {
-			Info("origin remote was up to date, no push done")
+			PrintInfo("origin remote was up to date, no push done")
 			return nil
 		}
-		Info("push to remote origin error: %s", err)
+		PrintInfo("push to remote origin error: %s", err)
 		return err
 	}
 
