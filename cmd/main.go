@@ -25,10 +25,11 @@ func main() {
 
 	if flags.Version {
 		if version == "" {
-			fmt.Printf("Version code hasn't been set\n")
+			internal.Error("Version code hasn't been set\n")
+		} else {
+			internal.Info(version)
 		}
-		fmt.Printf(version)
-		os.Exit(2)
+		os.Exit(internal.Success)
 	}
 
 	key, _ := b64.StdEncoding.DecodeString(flags.SshKey)
@@ -50,6 +51,9 @@ func main() {
 	v1, err := GetVersion(w, *flags)
 	internal.HandleError(err)
 
+	/**
+	 * Shall we stop doing this previous hash stuff and instead just create it if it doesn't already exist?
+	 */
 	err = w.Checkout(&git.CheckoutOptions{
 		Hash: plumbing.NewHash(flags.PreviousHash),
 	})
@@ -60,7 +64,7 @@ func main() {
 
 	if v1 == v2 {
 		internal.Warning("Version code hasn't changed, exiting")
-		os.Exit(0)
+		os.Exit(internal.Success)
 	} else {
 		internal.Info("Version code changed!")
 	}
@@ -78,6 +82,10 @@ func main() {
 }
 
 func GetVersion(w *git.Worktree, flags internal.AllFlags) (string, error) {
+	if !strings.Contains(flags.FilePath, ".json") {
+		internal.Error("Currently only .json is supported. Check FilePath flag matches json path to version property.")
+		os.Exit(internal.InvalidFlagValue)
+	}
 	j, err := internal.ReadJson(w, flags.FilePath)
 	if err != nil {
 		return "", err

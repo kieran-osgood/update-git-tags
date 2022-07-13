@@ -28,18 +28,17 @@ func GetFlags() (*AllFlags, error) {
 	flags, output, err := ParseFlags(os.Args[0], os.Args[1:])
 
 	if err == flag.ErrHelp {
-		fmt.Println(output)
+		Error("%s", output)
 
-		os.Exit(2)
+		os.Exit(UnknownFlag)
 	} else if err != nil {
-		fmt.Println("")
-		fmt.Println("Invalid args: ", err)
+		Error("Invalid args: ", err)
 
 		if len(output) > 0 {
-			fmt.Println("output:\n", output)
+			Error("output:\n", output)
 		}
 
-		os.Exit(1)
+		os.Exit(UnknownFlag)
 	}
 
 	return flags, nil
