@@ -18,26 +18,35 @@ func TestCheckFlag(t *testing.T) {
 }
 
 func TestParseFlags3(t *testing.T) {
-	var tests = []struct {
+	tests := []struct {
 		name      string
 		args      []string
 		conf      AllFlags
 		wantError bool
 	}{
-		{"it errors when no flags passed in", []string{}, AllFlags{}, true},
-		{"it parses flags into AllFlags", []string{"--RepositoryUrl=test_url", "--Branch=test_main", "--PropertyPath=Version", "--SshKey=123", "--PreviousHash=abc", "--FilePath=app.json"},
-			AllFlags{
-				RepositoryUrl: "test_url",
-				Branch:        "test_main",
-				SshKey:        "123",
-				PreviousHash:  "abc",
-				PropertyPath:  "Version",
-				FilePath:      "app.json",
-				VersionTagPrefix:  "v",
-				VersionTagSuffix:  "",
-				args:          []string{},
+		{name: "it errors when no flags passed in", args: []string{}, wantError: true},
+		{
+			name: "it parses flags into AllFlags",
+			args: []string{
+				"--RepositoryUrl=test_url",
+				"--Branch=test_main",
+				"--PropertyPath=Version",
+				"--SshKey=123", "--PreviousHash=abc",
+				"--FilePath=app.json",
+				"--VersionTagSuffix=",
 			},
-			false},
+			conf: AllFlags{
+				RepositoryUrl:    "test_url",
+				Branch:           "test_main",
+				SshKey:           "123",
+				PreviousHash:     "abc",
+				PropertyPath:     "Version",
+				FilePath:         "app.json",
+				VersionTagPrefix: "v",
+				VersionTagSuffix: "",
+				args:             []string{},
+			},
+		},
 	}
 
 	for _, tt := range tests {

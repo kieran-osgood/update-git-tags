@@ -16,7 +16,7 @@ import (
 //goland:noinspection GoUnusedGlobalVariable
 var (
 	version string
-	build string
+	build   string
 )
 
 func main() {
@@ -32,7 +32,10 @@ func main() {
 	}
 
 	key, _ := b64.StdEncoding.DecodeString(flags.SshKey)
-	publicKeys, err := ssh.NewPublicKeys("git", key, "")
+	/**
+	 * Appears to fail with passphrase so need to look into this
+	 */
+	publicKeys, err := ssh.NewPublicKeys("git", key, flags.SshPhrase)
 	internal.HandleError(err)
 
 	r, err := internal.GetRepository(flags.RepositoryUrl, publicKeys)
