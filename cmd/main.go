@@ -13,6 +13,10 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 )
 
+/**
+ * version & build are set at compilation time via go build
+ * see .circleci/config.yml "main.version" & "main.build" for usage
+ */
 //goland:noinspection GoUnusedGlobalVariable
 var (
 	version string
@@ -24,7 +28,9 @@ func main() {
 	internal.HandleError(err)
 
 	if flags.Version {
+		/** User passed --Version flag */
 		if version == "" {
+			/** version is only set on release builds, see .circleci/config.yml */
 			internal.PrintError("Version code hasn't been set\n")
 		} else {
 			internal.PrintInfo(version)
@@ -33,9 +39,8 @@ func main() {
 	}
 
 	key, _ := b64.StdEncoding.DecodeString(flags.SshKey)
-	/**
-	 * Appears to fail with passphrase so need to look into this
-	 */
+
+	/** @TODO Appears to fail with passphrase so need to look into this */
 	publicKeys, err := ssh.NewPublicKeys("git", key, flags.SshPhrase)
 	internal.HandleError(err)
 
@@ -51,9 +56,7 @@ func main() {
 	v1, err := GetVersion(w, *flags)
 	internal.HandleError(err)
 
-	/**
-	 * Shall we stop doing this previous hash stuff and instead just create it if it doesn't already exist?
-	 */
+	/** @TODO Shall we stop doing this previous hash stuff and instead just create it if it doesn't already exist?*/
 	err = w.Checkout(&git.CheckoutOptions{Hash: plumbing.NewHash(flags.PreviousHash)})
 	internal.HandleError(err)
 
