@@ -50,15 +50,60 @@ func ParseFlags(programName string, args []string) (config *AllFlags, output str
 	flags.SetOutput(&buf)
 
 	var allFlags AllFlags
-	flags.StringVar(&allFlags.RepositoryUrl, "RepositoryUrl", os.Getenv("REPOSITORY_URL"), "SSH url to the repository to be cloned. Default: $REPOSITORY_URL")
-	flags.StringVar(&allFlags.Branch, "Branch", "main", "Branch to check. Default: \"main\"")
-	flags.StringVar(&allFlags.SshKey, "SshKey", os.Getenv("SSH_KEY"), "Base64 encoded of SSH private key. Default: $SSH_KEY")
-	flags.StringVar(&allFlags.SshPhrase, "SshPhrase", os.Getenv("SSH_PHRASE"), "Base64 encoded of SSH private key. Default: $SSH_PHRASE")
-	flags.StringVar(&allFlags.PreviousHash, "PreviousHash", "", "Commit hash of the previous commit to HEAD. Default: $CIRCLE_SHA1")
-	flags.StringVar(&allFlags.PropertyPath, "PropertyPath", "version", "Property path to the Version code in the json file. Default: \"Version\"")
-	flags.StringVar(&allFlags.FilePath, "FilePath", "package.json", "File path to the json file with the Version code. Default: \"package.json\"")
-	flags.StringVar(&allFlags.VersionTagPrefix, "VersionTagPrefix", "v", "Prefix for the git tag")
-	flags.StringVar(&allFlags.VersionTagSuffix, "VersionTagSuffix", "", "Suffix for the git tag")
+	flags.StringVar(
+		&allFlags.RepositoryUrl,
+		"RepositoryUrl",
+		os.Getenv("REPOSITORY_URL"),
+		"SSH url to the repository to be cloned. e.g. git@github.com:kieran-osgood/update-git-tags.git",
+	)
+	flags.StringVar(
+		&allFlags.Branch,
+		"Branch",
+		"main",
+		"Branch to check.",
+	)
+	flags.StringVar(
+		&allFlags.SshKey,
+		"SshKey",
+		os.Getenv("SSH_KEY"),
+		"Base64 encoded of SSH private key.",
+	)
+	flags.StringVar(
+		&allFlags.SshPhrase,
+		"SshPhrase",
+		os.Getenv("SSH_PHRASE"),
+		"Passphrase to the supplied --SshKey.",
+	)
+	flags.StringVar(
+		&allFlags.PreviousHash,
+		"PreviousHash",
+		"",
+		"Commit hash of the previous commit to HEAD.",
+	)
+	flags.StringVar(
+		&allFlags.PropertyPath,
+		"PropertyPath",
+		"version",
+		"Dot separated property path to the version field in the json file. e.g. for a json file like {\"expo:\": { \"version\": \"1.0.0\" }} you would supply: --PropertyPath='expo.version'",
+	)
+	flags.StringVar(
+		&allFlags.FilePath,
+		"FilePath",
+		"package.json",
+		"File path to the json file storing the apps version.",
+	)
+	flags.StringVar(
+		&allFlags.VersionTagPrefix,
+		"VersionTagPrefix",
+		"v",
+		"Added to the start of each new git tag this CLI creates.",
+	)
+	flags.StringVar(
+		&allFlags.VersionTagSuffix,
+		"VersionTagSuffix",
+		"",
+		"Added to the end of each new git tag this CLI creates.",
+	)
 
 	// Flag short circuits' app run and outputs the binary version from main.Version
 	flags.BoolVar(&allFlags.Version, "Version", false, "Check Version of app binary")
