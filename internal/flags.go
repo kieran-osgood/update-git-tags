@@ -32,7 +32,7 @@ func GetFlags() (*AllFlags, error) {
 
 		os.Exit(UnknownFlag)
 	} else if err != nil {
-		PrintError("Invalid args: ", err)
+		PrintError("Invalid args: %v", err)
 
 		if len(output) > 0 {
 			PrintError("output:\n", output)

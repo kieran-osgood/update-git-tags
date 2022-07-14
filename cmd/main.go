@@ -33,7 +33,7 @@ func main() {
 			/** version is only set on release builds, see .circleci/config.yml */
 			internal.PrintError("Version code hasn't been set\n")
 		} else {
-			internal.PrintInfo(version)
+			internal.PrintInfo("v%s", version)
 		}
 		os.Exit(internal.Success)
 	}
