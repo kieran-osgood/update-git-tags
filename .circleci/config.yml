@@ -32,6 +32,9 @@ jobs:
       - run: 
           name: Run Tests
           command: go test -v 2>&1 ./... | go-junit-report -set-exit-code > ${TEST_RESULTS}/report.xml
+      - store_artifacts: # upload test summary for display in Artifacts
+          path: /tmp/test-results
+          destination: raw-test-output
       - store_test_results: # upload test results for display in Test Summary
           path: /tmp/test-results
 
