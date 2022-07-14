@@ -35,7 +35,7 @@ func GetFlags() (*AllFlags, error) {
 		PrintError("Invalid args: %v", err)
 
 		if len(output) > 0 {
-			PrintError("output: %s\n", output)
+			PrintError("output: \n", output)
 		}
 
 		os.Exit(UnknownFlag)
