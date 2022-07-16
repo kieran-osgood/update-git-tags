@@ -3,11 +3,6 @@ version: 2.1
 orbs:
   go: circleci/go@1.7.0
 
-tagged_release: &tagged_release
-  filters:
-    tags:
-      only: /^v.*/
-
 jobs:
   checkout_and_cache:
     docker:
@@ -112,8 +107,10 @@ workflows:
           requires:
             - test
       - release:
-          <<: *tagged_release
           context: orb-publishing
+          filters:
+            tags:
+              only: /^v.*/
           requires:
               - build
           
