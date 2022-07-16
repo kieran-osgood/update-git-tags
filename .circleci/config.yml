@@ -5,8 +5,6 @@ orbs:
 
 tagged_release: &tagged_release
   filters:
-    branches:
-      only: main
     tags:
       only: /^v.*/
 
