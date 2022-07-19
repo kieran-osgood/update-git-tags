@@ -99,7 +99,10 @@ jobs:
 workflows:
   build_test_release:
     jobs:
-      - checkout_and_cache
+      - checkout_and_cache:
+          filters:
+            tags:
+              only: /^v.*/
       - test:
           filters:
             tags:
