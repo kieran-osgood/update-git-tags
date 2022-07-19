@@ -101,9 +101,15 @@ workflows:
     jobs:
       - checkout_and_cache
       - test:
+          filters:
+            tags:
+              only: /^v.*/
           requires:
             - checkout_and_cache
       - build:
+          filters:
+            tags:
+              only: /^v.*/
           requires:
             - test
       - release:
@@ -111,8 +117,6 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-            branches:
-              ignore: /.*/
           requires:
               - build
           
