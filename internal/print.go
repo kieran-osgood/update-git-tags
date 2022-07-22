@@ -12,15 +12,15 @@ const (
 
 // PrintInfo should be used to describe the example commands that are about to run.
 func PrintInfo(format string, args ...interface{}) {
-	fmt.Printf(InfoColor, fmt.Sprintf(format, args...)+"\n")
+	fmt.Println(fmt.Sprintf(InfoColor, fmt.Sprintf(format, args...)))
 }
 
 // PrintWarning should be used to display a warning
 func PrintWarning(format string, args ...interface{}) {
-	fmt.Printf(WarningColor, fmt.Sprintf(format, args...)+"\n")
+	fmt.Println(fmt.Sprintf(WarningColor, fmt.Sprintf(format, args...)))
 }
 
 // PrintError should be used to display a warning
 func PrintError(format string, args ...interface{}) {
-	fmt.Printf(ErrorColor, fmt.Sprintf(format, args...)+"\n")
+	fmt.Println(fmt.Sprintf(ErrorColor, fmt.Sprintf(format, args...)))
 }
