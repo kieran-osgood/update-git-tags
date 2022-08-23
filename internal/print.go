@@ -15,6 +15,11 @@ func PrintInfo(format string, args ...interface{}) {
 	fmt.Println(fmt.Sprintf(InfoColor, fmt.Sprintf(format, args...)))
 }
 
+// PrintNotice is for upcoming changes/deprecations
+func PrintNotice(format string, args ...interface{}) {
+	fmt.Println(fmt.Sprintf(NoticeColor, fmt.Sprintf(format, args...)))
+}
+
 // PrintWarning should be used to display a warning
 func PrintWarning(format string, args ...interface{}) {
 	fmt.Println(fmt.Sprintf(WarningColor, fmt.Sprintf(format, args...)))
@@ -23,4 +28,9 @@ func PrintWarning(format string, args ...interface{}) {
 // PrintError should be used to display a warning
 func PrintError(format string, args ...interface{}) {
 	fmt.Println(fmt.Sprintf(ErrorColor, fmt.Sprintf(format, args...)))
+}
+
+// PrintDebug is to be used when run in --verbose mode for collecting crash info
+func PrintDebug(format string, args ...interface{}) {
+	fmt.Println(fmt.Sprintf(DebugColor, fmt.Sprintf(format, args...)))
 }
